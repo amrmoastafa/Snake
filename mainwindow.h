@@ -27,10 +27,12 @@ public:
     QString Server_order;
     QPushButton *Temp;
     QPushButton *food;
+
     QVector <QPushButton *> Snake_body;
     QPushButton * Create_New_Button();
     void Update(QPushButton * Snake_body_second, QPushButton * Snake_body_first);
     void Follow();
+    int randint(int Min, int Max);
     int counter;
     char last_pressed;
     void moveByServer(QString order);

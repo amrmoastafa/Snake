@@ -1,10 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QKeyEvent>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
   //    ui(new Ui::MainWindow)
 {
+    counter = 0;
     // Creating the vector of snake body
     Snake_body.append(Create_New_Button());
     Snake_body[0]->setGeometry(0,0,40,40);
@@ -23,10 +25,6 @@ MainWindow::MainWindow(QWidget *parent) :
     food = new QPushButton(this);
     food->setStyleSheet("QPushButton{ background-color:rgb(250,0,0); color:white; font-size: 17px; font-family: Arial;border-radius:20%; border-width:0.5px;border-style: solid; border-color:white;}");
     food->setGeometry(200,200,40,40);
-    socket = new QTcpSocket(this);
-    socket->connectToHost("127.0.0.1",8082);
-    socket->bind();
-
 
 }
 
@@ -38,6 +36,7 @@ QPushButton *MainWindow::Create_New_Button()
 
 void MainWindow::Update(QPushButton * Snake_body_second, QPushButton * Snake_body_first)
 {
+    qDebug()<<"From inside  of update";
     if(counter >1)
     {
         if(Snake_body[counter-1]->x() > Snake_body_first->x())
@@ -54,6 +53,7 @@ void MainWindow::Update(QPushButton * Snake_body_second, QPushButton * Snake_bod
             last_pressed = 'A';
         }
     }
+
     switch(last_pressed){
     case'D':
         Snake_body_second->setGeometry(Snake_body_first->x()-40,Snake_body_first->y(),Snake_body_first->width(),Snake_body_first->height());
@@ -80,64 +80,52 @@ void MainWindow::Follow()
 {
     qDebug()<<"Follow is called";
 
-    for(int i = counter;i >0;i--)
-    {
-        Snake_body[i]->setGeometry(Snake_body[i-1]->x(),Snake_body[i-1]->y(),Snake_body[i-1]->width(),Snake_body[i-1]->height());
-    }
+        for(int i = counter;i >0;i--)
+        {
+            Snake_body[i]->setGeometry(Snake_body[i-1]->x(),Snake_body[i-1]->y(),Snake_body[i-1]->width(),Snake_body[i-1]->height());
+        }
+
+
 
 }
+
+
+int MainWindow::randint(int Min, int Max) {
+    return std::rand() % (Max + 1 - Min) + Min;
+}
+
 void MainWindow::keyPressEvent(QKeyEvent *event){
 
 
     switch(char(event->key()))
     {
-    case 'D':
-        socket->write("right1");
-        qDebug()<<socket->waitForReadyRead(1000);
-        Server_order =socket->readAll();
-        if(Server_order == "RIGHT")
-        {
+        case 'D':
             Follow();
             last_pressed = 'D';
             Snake_body[0]->setGeometry(Snake_body[0]->x()+Snake_body[0]->width(),Snake_body[0]->y(),Snake_body[0]->width(),Snake_body[0]->height());
-            break;
-        }
+        break;
 
-
-    case 'S':
-        socket->write("down1");
-        qDebug()<<socket->waitForReadyRead(1000);
-        Server_order =socket->readAll();
-        if(Server_order == "DOWN")
-        {
+        case 'S':
             Follow();
             last_pressed = 'S';
             Snake_body[0]->setGeometry(Snake_body[0]->x(),Snake_body[0]->y() + 40,Snake_body[0]->width(),Snake_body[0]->height());
-            break;
-        }
+        break;
 
-    case 'W':
-        socket->write("up1");
-        qDebug()<<socket->waitForReadyRead(1000);
-        Server_order =socket->readAll();
-        if(Server_order == "UP")
-        {
+
+        case 'W':
+
             Follow();
             last_pressed = 'W';
             Snake_body[0]->setGeometry(Snake_body[0]->x(),Snake_body[0]->y() - 40,Snake_body[0]->width(),Snake_body[0]->height());
-            break;
-        }
-    case'A':
-        socket->write("left1");
-        qDebug()<<socket->waitForReadyRead(1000);
-        Server_order =socket->readAll();
-        if(Server_order == "LEFT")
-        {
+        break;
+
+        case'A':
+
             Follow();
             last_pressed = 'A';
             Snake_body[0]->setGeometry(Snake_body[0]->x()-Snake_body[0]->width(),Snake_body[0]->y(),Snake_body[0]->width(),Snake_body[0]->height());
-            break;
-        }
+         break;
+
     default:
         break;
     }
@@ -160,7 +148,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
         qDebug()<<"Value for counter : "<<counter;
         Update(Snake_body[counter+1],Snake_body[counter]);
         counter++;
-        food->setGeometry(40*(rand()%16),40* (rand()%16),40,40);
+        food->setGeometry(40*randint(0, 12),40*randint(0, 12),40,40);
         qDebug()<<food->x()<<food->y();
     }
 

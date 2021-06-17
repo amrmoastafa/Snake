@@ -1,7 +1,7 @@
 import socket
 from _thread import*
 host = '127.0.0.1'
-port = 8082
+port = 8080
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
 try:
@@ -17,6 +17,7 @@ def handle_client (conn1 , addr1):
 
     while True:
          msg = conn1.recv(1024).decode()
+         
          if not msg or msg == 'close':
              print('Lost connection with client', addr1)
              conn1.close()
